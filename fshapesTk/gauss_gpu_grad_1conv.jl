@@ -38,8 +38,8 @@ function gauss_gpu_grad1_conv_on_device!(TYPE::Type, DIMPOINT::int, DIMVECT::int
 
             for jrel = 1:blockDim().x
                 if jrel <= ny-jstart+1
-                    r2 = 0.0f
-                    sga = 0.0f
+                    r2 = 0.0
+                    sga = 0.0
                     for k = 1:DIMPOINT
                         xmy[k] = xi[k] - yj[k]
                         r2 += xmy[k]*xmy[k]
@@ -47,7 +47,7 @@ function gauss_gpu_grad1_conv_on_device!(TYPE::Type, DIMPOINT::int, DIMVECT::int
                     for k = 1:DIMVECT
                         sga += betaj[k] * alphai[k]
                     end
-                    s = expr(-ooSigma2 * 2.0f * sga) * expr(-r2 * ooSigma2)
+                    s = expr(-ooSigma2 * 2.0 * sga) * expr(-r2 * ooSigma2)
                     for k = 1:DIMPOINT
                         gammai[k] += s * xmy[k]
                     end

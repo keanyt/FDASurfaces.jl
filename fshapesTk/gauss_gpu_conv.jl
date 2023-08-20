@@ -1,8 +1,4 @@
-function kernel_gauss(u::Vector{TYPE}, v::Vector{TYPE}, ooSigma2::TYPE) where TYPE
-    r2 = norm(u - v)^2
-    return exp(-r2 * ooSigma2)
-end
-
+include("gauss_kernels.jl")
 
 function gauss_gpu_conv_on_device!(TYPE::Type, DIMPOINT::Int, DIMVECT::Int, ooSigma2, x, y, beta, gamma, nx, ny)
     i = (blockIdx().x-1) * blockDim().x + threadIdx().x
