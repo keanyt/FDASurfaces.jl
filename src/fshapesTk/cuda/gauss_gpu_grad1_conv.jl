@@ -51,9 +51,9 @@ function gauss_gpu_grad1_conv_on_device!(TYPE::Type, DIMPOINT::int, DIMVECT::int
                     for k = 1:DIMPOINT
                         gammai[k] += s * xmy[k]
                     end
+                    yj += inc
+                    betaj += inc
                 end
-                yj += inc
-                betaj += inc
             end
         end
         @synchronize()
@@ -128,9 +128,4 @@ function gauss_gpu_grad1_conv!(TYPE::type, alpha_x, x_h, y_h, beta_h, gamma_h, d
         CUDA.unsafe_free!(x_d)
     end
     return 0
-end
-
-
-function exit_function()
-    CUDA.reset()
 end

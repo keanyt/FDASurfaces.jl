@@ -92,6 +92,10 @@ function gauss_gpu_eval_conv!(TYPE::type, ooSigma2, x_h, y_h, beta_h, gamma_h, d
             @cuda threads=block_size blocks=grid_size gauss_gpu_conv_on_device!(TYPE, 4, 4, ooSigma2, x_d, y_d, beta_d, gamma_d, nx, ny)
         else
             println("gauss_gpu_conv error: dimensions of Gauss kernel not implemented in CUDA")
+            CUDA.unsafe_free!(gamma_d)
+            CUDA.unsafe_free!(beta_d)
+            CUDA.unsafe_free!(y_d)
+            CUDA.unsafe_free!(x_d)
             return -1
         end
 
