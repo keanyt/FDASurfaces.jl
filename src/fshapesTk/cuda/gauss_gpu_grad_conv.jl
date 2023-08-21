@@ -1,4 +1,4 @@
-function gauss_gpu_grad_conv_on_device!(TYPE::Type, DIMPOINT::int, DIMVECT::int, ooSigma2, alpha, x, y, beta, gamma, nx)
+function gauss_gpu_grad_conv_on_device!(TYPE::Type, DIMPOINT::int, DIMVECT::int, ooSigma2, alpha, x, beta, gamma, nx)
     i = (blockIdx().x-1) * blockDim().x + threadIdx().x
     
     shared_data = @cuDynamicSharedMem(TYPE, (DIMPOINT+DIMVECT) * blockDim().x)
@@ -79,7 +79,7 @@ function gauss_gpu_grad_conv_on_device!(TYPE::Type, DIMPOINT::int, DIMVECT::int,
 end
 
 
-function gauss_gpu_grad_conv!(TYPE::type, alpha_x, x_h, y_h, beta_h, gamma_h, dimPoint, dimVect, nx)
+function gauss_gpu_grad_conv!(TYPE::type, alpha_h, x_h, beta_h, gamma_h, dimPoint, dimVect, nx)
     # allocate arrays on device and set values to 0
     x_d = CUDA.fill(zero(TYPE), nx * dimPoint)
     alpha_d = CUDA.fill(zero(TYPE), nx * dimVect)
@@ -97,19 +97,19 @@ function gauss_gpu_grad_conv!(TYPE::type, alpha_x, x_h, y_h, beta_h, gamma_h, di
         grid_size = (div(nx + block_size[1] - 1, block_size[1]), 1, 1)
 
         if dimPoint == 1 && dimVect == 1
-            @cuda threads=block_size blocks=grid_size gauss_gpu_grad_conv_on_device!(TYPE, 1, 1, ooSigma2, alpha_d, x_d, y_d, beta_d, gamma_d, nx)
+            @cuda threads=block_size blocks=grid_size gauss_gpu_grad_conv_on_device!(TYPE, 1, 1, ooSigma2, alpha_d, x_d, beta_d, gamma_d, nx)
         elseif dimPoint == 2 && dimVect == 1
-            @cuda threads=block_size blocks=grid_size gauss_gpu_grad_conv_on_device!(TYPE, 2, 1, ooSigma2, alpha_d, x_d, y_d, beta_d, gamma_d, nx)
+            @cuda threads=block_size blocks=grid_size gauss_gpu_grad_conv_on_device!(TYPE, 2, 1, ooSigma2, alpha_d, x_d, beta_d, gamma_d, nx)
         elseif dimPoint == 3 && dimVect == 1
-            @cuda threads=block_size blocks=grid_size gauss_gpu_grad_conv_on_device!(TYPE, 3, 1, ooSigma2, alpha_d, x_d, y_d, beta_d, gamma_d, nx)
+            @cuda threads=block_size blocks=grid_size gauss_gpu_grad_conv_on_device!(TYPE, 3, 1, ooSigma2, alpha_d, x_d, beta_d, gamma_d, nx)
         elseif dimPoint == 4 && dimVect == 1
-            @cuda threads=block_size blocks=grid_size gauss_gpu_grad_conv_on_device!(TYPE, 4, 1, ooSigma2, alpha_d, x_d, y_d, beta_d, gamma_d, nx)
+            @cuda threads=block_size blocks=grid_size gauss_gpu_grad_conv_on_device!(TYPE, 4, 1, ooSigma2, alpha_d, x_d, beta_d, gamma_d, nx)
         elseif dimPoint == 2 && dimVect == 2
-            @cuda threads=block_size blocks=grid_size gauss_gpu_grad_conv_on_device!(TYPE, 2, 2, ooSigma2,alpha_d, x_d, y_d, beta_d, gamma_d, nx)
+            @cuda threads=block_size blocks=grid_size gauss_gpu_grad_conv_on_device!(TYPE, 2, 2, ooSigma2,alpha_d, x_d, beta_d, gamma_d, nx)
         elseif dimPoint == 3 && dimVect == 3
-            @cuda threads=block_size blocks=grid_size gauss_gpu_grad_conv_on_device!(TYPE, 3, 3, ooSigma2, alpha_d, x_d, y_d, beta_d, gamma_d, nx)
+            @cuda threads=block_size blocks=grid_size gauss_gpu_grad_conv_on_device!(TYPE, 3, 3, ooSigma2, alpha_d, x_d, beta_d, gamma_d, nx)
         elseif dimPoint == 4 && dimVect == 4
-            @cuda threads=block_size blocks=grid_size gauss_gpu_grad_conv_on_device!(TYPE, 4, 4, ooSigma2, alpha_d, x_d, y_d, beta_d, gamma_d, nx)
+            @cuda threads=block_size blocks=grid_size gauss_gpu_grad_conv_on_device!(TYPE, 4, 4, ooSigma2, alpha_d, x_d, beta_d, gamma_d, nx)
         else
             println("gauss_gpu_grad_conv error: dimensions of Gauss kernel not implemented in CUDA")
             CUDA.unsafe_free!(gamma_d)
